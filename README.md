@@ -1,186 +1,175 @@
-# MLOPS_full
-# 🚀 MLOps Full Project — Random Forest with MLflow Tracking
+# MLOps Projects Repository
 
-A complete MLOps pipeline using **Scikit-learn**, **MLflow**, and **RandomizedSearchCV** for training, hyperparameter tuning, experiment tracking, and model registration.
+A collection of end-to-end MLOps projects demonstrating best practices for building, tracking, versioning, and deploying machine learning models using modern MLOps tooling.
 
 ---
 
-## 📁 Project Structure
+## Repository Structure
 
 ```
-MLOPS_full/
-│
-├── MLOps_Project_32/
-│   └── notebook.ipynb          # Main Jupyter notebook
-│
-├── mlruns/                     # MLflow experiment metadata (auto-generated)
-├── .gitignore
+.
+├── DVC/                    # Data Version Control experiments and pipelines
+├── MLOps_Project_32/       # MLOps project – sprint 32
+├── MLOps_Project_33/       # MLOps project – sprint 33
+├── MLOps_Project_34/       # MLOps project – sprint 34
+├── dagshub/                # DagsHub integration and remote tracking configs
+├── mlflow_test.ipynb       # MLflow experiment tracking notebook
+├── mlflow.db               # Local MLflow tracking database
+├── requirements.txt        # Python dependencies
 └── README.md
 ```
 
 ---
 
-## ⚙️ Prerequisites
+## Tech Stack
 
-Make sure you have the following installed:
+| Tool | Purpose |
+|------|---------|
+| **MLflow** | Experiment tracking, model registry, artifact logging |
+| **DVC** | Data versioning, pipeline management, remote storage |
+| **DagsHub** | Remote MLflow & DVC server, collaboration |
+| **Python** | Core language |
+| **Jupyter** | Experimentation and prototyping |
+
+---
+
+## Getting Started
+
+### Prerequisites
 
 - Python 3.8+
-- pip
-- git
+- Git
 
----
-
-## 🛠️ Setup & Installation
-
-### 1. Clone the Repository
+### Installation
 
 ```bash
-git clone https://github.com/Indranil-123/MLOPS_full.git
-cd MLOPS_full
-```
+# Clone the repository
+git clone https://github.com/Indranil-123/neel.git
+cd neel
 
-### 2. Create a Virtual Environment
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate        # On Windows: venv\Scripts\activate
 
-```bash
-python -m venv mlflowvenv
-```
-
-Activate it:
-
-- **Windows:**
-  ```bash
-  mlflowvenv\Scripts\activate
-  ```
-- **Mac/Linux:**
-  ```bash
-  source mlflowvenv/bin/activate
-  ```
-
-### 3. Install Dependencies
-
-```bash
-pip install mlflow scikit-learn pandas numpy matplotlib seaborn jupyter
+# Install dependencies
+pip install -r requirements.txt
 ```
 
 ---
 
-## ▶️ Running the Project
+## MLflow Experiment Tracking
 
-### Step 1: Start the MLflow Tracking Server
+MLflow is used for logging parameters, metrics, and model artifacts across all projects.
 
-Open a **separate terminal** and run:
-
-```bash
-mlflow server --host 127.0.0.1 --port 5000
-```
-
-> Keep this terminal open while running the notebook.
-
-### Step 2: Launch Jupyter Notebook
-
-In your main terminal (with venv activated):
+### Running the MLflow UI locally
 
 ```bash
-jupyter notebook
+mlflow ui --backend-store-uri sqlite:///mlflow.db
 ```
 
-Open `MLOps_Project_32/notebook.ipynb` in the browser.
+Then open [http://localhost:5000](http://localhost:5000) in your browser.
 
-### Step 3: Run All Cells
-
-Execute all cells in order. The notebook will:
-
-1. Load and preprocess the dataset
-2. Split data into train/test sets
-3. Run `RandomizedSearchCV` for hyperparameter tuning
-4. Log parameters, metrics, and the best model to MLflow
-5. Register the model as `"Best Random Search Model"`
-
----
-
-## 📊 Viewing MLflow Experiments
-
-Once the notebook has run, open your browser and go to:
-
-```
-http://127.0.0.1:5000
-```
-
-You will see:
-- All experiment runs
-- Logged parameters (n_estimators, max_depth, etc.)
-- Metrics (MSE)
-- Registered models
-
----
-
-## 🧠 Hyperparameters Tuned
-
-| Parameter | Values Searched |
-|---|---|
-| `n_estimators` | [100, 200, 300, 400, 500] |
-| `max_depth` | [4, 6, 8, 10, None] |
-| `min_samples_split` | [2, 5, 10] |
-| `min_samples_leaf` | [1, 2, 4] |
-| `random_state` | [42] |
-
----
-
-## 📌 Key Code Snippet
+### Using DagsHub as a Remote MLflow Server
 
 ```python
-# Set tracking URI before starting a run
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
+import mlflow
+import os
 
-with mlflow.start_run():
-    random_search = hyperparameter_tuning(X_train, y_train, params)
-    best_model = random_search.best_estimator_
+os.environ["MLFLOW_TRACKING_URI"]      = "https://dagshub.com/<username>/<repo>.mlflow"
+os.environ["MLFLOW_TRACKING_USERNAME"] = "<your_dagshub_username>"
+os.environ["MLFLOW_TRACKING_PASSWORD"] = "<your_dagshub_token>"
 
-    mlflow.log_param("best_n_estimators", random_search.best_params_["n_estimators"])
-    mlflow.log_metric("mse", mse)
+mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
+```
 
-    mlflow.sklearn.log_model(best_model, "model",
-                             registered_model_name="Best Random Search Model",
-                             signature=signature1)
+> **Note:** Never commit credentials to the repository. Use environment variables or a `.env` file (already listed in `.gitignore`).
+
+---
+
+## DVC — Data & Pipeline Versioning
+
+DVC tracks large datasets and model files without storing them in Git.
+
+### Common DVC Commands
+
+```bash
+# Pull tracked data from remote
+dvc pull
+
+# Run the full pipeline
+dvc repro
+
+# Push data changes to remote
+dvc push
+
+# Check pipeline DAG
+dvc dag
 ```
 
 ---
 
-## 🚫 .gitignore (Important!)
+## Projects Overview
 
-The following are excluded from version control to avoid large file errors:
+### MLOps_Project_32
+> _Brief description of what this project covers — e.g., training a classification model with MLflow logging and DVC-tracked datasets._
 
-```gitignore
-mlruns/
-mlartifacts/
-mlflowvenv/
-__pycache__/
-*.pyc
-.ipynb_checkpoints/
-.env
+### MLOps_Project_33
+> _Brief description — e.g., building a model pipeline with DVC stages and remote artifact storage on DagsHub._
+
+### MLOps_Project_34
+> _Brief description — e.g., model evaluation, registration in MLflow Model Registry, and serving with MLflow._
+
+### DVC/
+Contains standalone DVC pipeline experiments, including `dvc.yaml` pipeline definitions and `params.yaml` configuration files.
+
+### dagshub/
+Configuration and scripts for syncing experiments and data with [DagsHub](https://dagshub.com).
+
+---
+
+## Workflow
+
+```
+Data (DVC) ──► Feature Engineering ──► Model Training
+                                              │
+                                         MLflow Logging
+                                         (params, metrics, artifacts)
+                                              │
+                                       Model Registry (MLflow / DagsHub)
+                                              │
+                                         Deployment / Serving
 ```
 
-> ⚠️ Never push `mlartifacts/` to GitHub — MLflow model files can exceed GitHub's 100MB limit.
+---
+
+## Environment Variables
+
+Create a `.env` file in the root directory (already in `.gitignore`):
+
+```env
+MLFLOW_TRACKING_URI=https://dagshub.com/<username>/<repo>.mlflow
+MLFLOW_TRACKING_USERNAME=<your_username>
+MLFLOW_TRACKING_PASSWORD=<your_token>
+```
 
 ---
 
-## 🐛 Common Errors & Fixes
+## Contributing
 
-| Error | Cause | Fix |
-|---|---|---|
-| `PermissionError: [WinError 5]` | Space in folder path (`Edunet Foundation`) | Move project to a path without spaces e.g. `C:\MLOPS\` |
-| `TypeError: parameter grid not iterable` | Passing single values in `params` dict | Use lists: `"n_estimators": [100, 200, 300]` |
-| `remote rejected` on git push | MLflow artifact > 100MB pushed to GitHub | Add `mlartifacts/` to `.gitignore` and remove from tracking |
-| `AttributeError: .Scheme` | Wrong case on urlparse attribute | Use `.scheme` (lowercase) |
-
----
-
-## 📬 Author
-
-**Indranil** — [GitHub](https://github.com/Indranil-123)
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Commit your changes: `git commit -m "Add your feature"`
+4. Push to the branch: `git push origin feature/your-feature`
+5. Open a Pull Request
 
 ---
 
-## 📄 License
+## License
 
-This project is for educational purposes as part of an MLOps training program.
+This project is licensed under the terms of the [LICENSE](LICENSE) file included in this repository.
+
+---
+
+## Author
+
+**Indranil** — [@Indranil-123](https://github.com/Indranil-123)
